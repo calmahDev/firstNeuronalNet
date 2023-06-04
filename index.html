@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>calmah </title>
+	<style type="text/css">
+		#sitio {
+			padding: 5%;
+			font-size: 140%;
+			margin: 5%;
+		}
+		 #escoger {
+			width: 100%;
+			max-width: 600px;
+			margin: 0 auto;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+		}
+	</style>
+</head>
+<body>
+	<div id="sitio">
+		Red neuronal que predice el color de la letra (blanco o negro) segun el color del fondo.
+	</div>
+	<input id="escoger" data-jscolor="{value:'#CC66FF'}", onInput="update(this.jscolor)",>
+	
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jscolor/2.4.5/jscolor.min.js"></script>
+	<script src="https://unpkg.com/brain.js"></script>
+
+	<script type="text/javascript">
+
+		var network = new brain.NeuralNetwork();
+
+		network.train([
+			//Fondo negro (entrada en 0s) = texto blanco (salida = 1) 	
+			{input: {rojo: 0, verde: 0, azul: 0}, output: {color: 1}},
+			//Fondo blanco (entrada en 1s) = texto negro (salida = 0)
+			{input: {rojo: 1, verde: 1, azul: 1}, output: {color: 0}},
+			//Fondo verde, texto negro
+			{input: {rojo: 0, verde: 1, azul: 0}, output: {color: 0}},
+			//Fondo azul, texto blanco
+			{input: {rojo: 0, verde: .43, azul: 1}, output: {color: 1}},
+			//Fondo rojo, texto blanco
+			{input: {rojo: 1, verde: 0, azul: 0}, output: {color: 1}},
+		]);
+
+		function update(color) {
+			var rgb = [color.channels.r, color.channels.g, color.channels.b];
+			var div = document.getElementById("sitio");
+			div.style.background = color.toHEXString(); 
+
+			var entrada = {
+				rojo: rgb[0]/255,
+				verde: rgb[1]/255,
+				azul: rgb[2]/255,
+			};
+
+			var resultado = network.run(entrada);
+
+			if (resultado.color > .5) {
+				div.style.color = "white";
+			}  else {
+				div.style.color = "black";
+			}
+		}
+	</script>
+</body>
+</html>
